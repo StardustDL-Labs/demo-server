@@ -2,6 +2,7 @@
 #include "util.h"
 #include <cstring>
 #include <unistd.h>
+#include "EventLoop.h"
 
 const int MAX_EVENTS = 1024;
 
@@ -31,11 +32,11 @@ void Epoll::updateChannel(Channel *channel)
     ev.events = channel->acceptEvents();
     if (channel->inEpoll())
     {
-        ensure(epoll_ctl(this->fd, EPOLL_CTL_MOD, channel->rawfd(), &ev) != -1, "Failed to modify fd to epoll.");
+        ensure(epoll_ctl(fd, EPOLL_CTL_MOD, channel->rawfd(), &ev) != -1, "Failed to modify fd to epoll.");
     }
     else
     {
-        ensure(epoll_ctl(this->fd, EPOLL_CTL_ADD, channel->rawfd(), &ev) != -1, "Failed to add fd to epoll.");
+        ensure(epoll_ctl(fd, EPOLL_CTL_ADD, channel->rawfd(), &ev) != -1, "Failed to add fd to epoll.");
         channel->added();
     }
 }
@@ -52,48 +53,4 @@ std::vector<Channel *> Epoll::poll(int timeout)
         result.push_back(channel);
     }
     return result;
-}
-
-Channel::Channel(Epoll *ep, int fd) : ep(ep), fd(fd)
-{
-}
-
-Channel::~Channel()
-{
-}
-
-int Channel::rawfd()
-{
-    return fd;
-}
-
-uint32_t Channel::acceptEvents()
-{
-    return accept_events;
-}
-
-uint32_t Channel::receiveEvents()
-{
-    return receive_events;
-}
-
-void Channel::enableRead()
-{
-    accept_events = EPOLLIN | EPOLLET;
-    ep->updateChannel(this);
-}
-
-void Channel::receive(uint32_t events)
-{
-    receive_events = events;
-}
-
-bool Channel::inEpoll()
-{
-    return in_epoll;
-}
-
-void Channel::added()
-{
-    in_epoll = true;
 }
