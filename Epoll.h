@@ -2,6 +2,8 @@
 #include <sys/epoll.h>
 #include <vector>
 
+class Channel;
+
 class Epoll
 {
 private:
@@ -12,7 +14,29 @@ public:
     Epoll();
     ~Epoll();
 
-    void add(int fd, uint32_t op);
+    void updateChannel(Channel *channel);
 
-    std::vector<epoll_event> poll(int timeout = -1);
+    std::vector<Channel *> poll(int timeout = -1);
+};
+
+class Channel
+{
+private:
+    Epoll *ep;
+    int fd;
+    uint32_t accept_events;
+    uint32_t receive_events;
+    bool in_epoll;
+
+public:
+    Channel(Epoll *ep, int fd);
+    ~Channel();
+
+    int rawfd();
+    uint32_t acceptEvents();
+    uint32_t receiveEvents();
+    void enableRead();
+    void receive(uint32_t events);
+    bool inEpoll();
+    void added();
 };
