@@ -8,10 +8,10 @@
 #include <errno.h>
 #include <unistd.h>
 #include <iostream>
-#include "Server.h"
-#include "InetAddress.h"
-#include "EventLoop.h"
-#include "util.h"
+#include "src/Server.h"
+#include "src/InetAddress.h"
+#include "src/EventLoop.h"
+#include "src/util.h"
 
 const int MAX_EVENTS = 512;
 const int READ_BUFFER = 1024;
