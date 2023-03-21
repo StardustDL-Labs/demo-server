@@ -2,6 +2,7 @@
 #include <functional>
 #include <unistd.h>
 #include <cstring>
+#include "util.h"
 
 const int READ_BUFFER = 1024;
 
@@ -26,8 +27,7 @@ void Connection::echo()
         ssize_t bytes_read = read(sockfd, buf, sizeof(buf));
         if (bytes_read > 0)
         {
-            printf("Recieved from %d: %s\n", sockfd, buf);
-            write(sockfd, buf, sizeof(buf));
+            readBuffer.append(buf, bytes_read);
         }
         else if (bytes_read == -1 && errno == EINTR)
         {
@@ -36,6 +36,9 @@ void Connection::echo()
         }
         else if (bytes_read == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
         {
+            printf("Recieved from %d: %s\n", sockfd, readBuffer.c_str());
+            ensure(write(sockfd, readBuffer.c_str(), readBuffer.size()) != -1, "Failed to write");
+            readBuffer.clear();
             printf("finish reading once, errno: %d\n", errno);
             break;
         }
