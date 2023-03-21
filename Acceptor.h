@@ -12,10 +12,10 @@ private:
     Socket sock;
     InetAddress addr;
     Channel channel;
-    std::function<void(Socket*)> callback;
+    std::function<void(Socket*)> on_accept;
 public:
     Acceptor(EventLoop *, const InetAddress &);
     ~Acceptor();
     void accept();
-    void withCallback(std::function<void(Socket*)>);
+    void onAccept(std::function<void(Socket*)>);
 };

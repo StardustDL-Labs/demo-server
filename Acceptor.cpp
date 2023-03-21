@@ -7,6 +7,7 @@ Acceptor::Acceptor(EventLoop *loop, const InetAddress &addr) : loop(loop), addr(
     sock.nonblocking();
     sock.bind(addr);
     sock.listen();
+    sock.nonblocking();
 
     channel.withCallback(std::bind(&Acceptor::accept, this));
     channel.enableRead();
@@ -18,10 +19,10 @@ Acceptor::~Acceptor()
 
 void Acceptor::accept()
 {
-    callback(&sock);
+    on_accept(&sock);
 }
 
-void Acceptor::withCallback(std::function<void(Socket *)> callback)
+void Acceptor::onAccept(std::function<void(Socket *)> callback)
 {
-    this->callback = callback;
+    this->on_accept = callback;
 }
