@@ -1,19 +1,14 @@
 #include "Server.h"
+#include "Acceptor.h"
 #include <cstring>
 #include <unistd.h>
+#include <functional>
 
 const int READ_BUFFER = 1024;
 
-Server::Server(EventLoop *loop, const InetAddress &address) : loop(loop)
+Server::Server(EventLoop *loop, const InetAddress &address) : loop(loop), acceptor(Acceptor(loop, address))
 {
-    Socket *server = new Socket();
-    server->nonblocking();
-    server->bind(address);
-    server->listen();
-
-    Channel *ch_server = new Channel(loop, server->rawfd());
-    ch_server->withCallback(std::bind(&Server::onConnect, this, server));
-    ch_server->enableRead();
+    acceptor.withCallback(std::bind(&Server::onConnect, this, std::placeholders::_1));
 }
 
 Server::~Server()
