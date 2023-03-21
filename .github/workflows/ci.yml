@@ -18,6 +18,7 @@ jobs:
         persist-credentials: false
     - name: Build Server
       run: |
+        mkdir ./target
         make server
     - name: Build Client
       run: |
